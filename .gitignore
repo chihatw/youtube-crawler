@@ -1,2 +1,4 @@
 .env
 credentials.json
+channel_names.txt
+subscribed_channel_ids.txt
