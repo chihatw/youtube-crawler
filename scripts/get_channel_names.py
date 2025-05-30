@@ -44,7 +44,8 @@ def main():
     quota_used = get_channel_name.api_call_count * 1  # channels.listは1回1unit
     search_list_count = 0
     videos_list_count = 0
-    log_quota_usage(quota_used, search_list_count, videos_list_count, api_name="youtube")
+    program_name = os.path.splitext(os.path.basename(__file__))[0]
+    log_quota_usage(quota_used, search_list_count, videos_list_count, api_name="youtube", caller_program=program_name)
 
 if __name__ == '__main__':
     main()

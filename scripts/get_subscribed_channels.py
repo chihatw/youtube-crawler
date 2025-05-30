@@ -69,4 +69,6 @@ if __name__ == "__main__":
     quota_used = subscriptions_list_count * 5
     search_list_count = 0
     videos_list_count = 0
-    log_quota_usage(quota_used, search_list_count, videos_list_count, api_name="youtube")
+    # 呼び出し元プログラム名を渡す
+    program_name = os.path.splitext(os.path.basename(__file__))[0]
+    log_quota_usage(quota_used, search_list_count, videos_list_count, api_name="youtube", caller_program=program_name)

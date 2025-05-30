@@ -43,6 +43,7 @@
 API ごとのクォータ消費量やトークン数を記録・管理する共通モジュールです。
 
 - YouTube API 用: `log_quota_usage()` を呼び出すことで `youtube_quota_usage_log.txt` などに記録されます。
+  - **2025 年 5 月以降、全スクリプトで「クォータを消費したプログラム名」も自動記録されます（`program: xxx` 列が追加されます）。**
 - Gemini API 用: `log_gemini_quota_usage()` を呼び出すことで `gemini_quota_usage_log.txt` に送信・受信・合計トークン数と 1 日累計合計トークン数が記録されます。
 - どちらのログも PST 基準で日時降順に追記されます。
 - Gemini API のログファイルや要約 Markdown ファイル（`summarized/` 配下）は `.gitignore` で管理対象外です。

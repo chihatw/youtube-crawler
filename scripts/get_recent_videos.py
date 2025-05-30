@@ -133,4 +133,5 @@ videos_list_count = sum([1 for r in new_results])  # videos.listは新規動画�
 quota_used = search_list_count * 100 + videos_list_count * 1
 
 # ログファイルに記録（共通関数利用）
-log_quota_usage(quota_used, search_list_count, videos_list_count, api_name="youtube")
+program_name = os.path.splitext(os.path.basename(__file__))[0]
+log_quota_usage(quota_used, search_list_count, videos_list_count, api_name="youtube", caller_program=program_name)

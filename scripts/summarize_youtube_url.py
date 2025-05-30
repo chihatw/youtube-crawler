@@ -93,4 +93,5 @@ if __name__ == "__main__":
     quota_used = get_youtube_description.api_call_count * 1  # videos.listは1回1unit
     search_list_count = 0
     videos_list_count = get_youtube_description.api_call_count  # videos.listのみカウント
-    log_quota_usage(quota_used, search_list_count, videos_list_count, api_name="youtube")
+    program_name = os.path.splitext(os.path.basename(__file__))[0]
+    log_quota_usage(quota_used, search_list_count, videos_list_count, api_name="youtube", caller_program=program_name)

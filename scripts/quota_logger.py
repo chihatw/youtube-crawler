@@ -7,10 +7,11 @@ def log_quota_usage(
     quota_used: int,
     search_list_count: int,
     videos_list_count: int,
-    api_name: str = "youtube"
+    api_name: str = "youtube",
+    caller_program: str = None
 ):
     """
-    <API名>_quota_usage_log.txt に推定クォータ消費量・search.list回数・videos.list回数・記録日時・1日累計推定クォータ消費量を追記する共通関数。
+    <API名>_quota_usage_log.txt に推定クォータ消費量・search.list回数・videos.list回数・記録日時・1日累計推定クォータ消費量・呼び出し元プログラム名を追記する共通関数。
     api_nameでAPI種別を記録し、ログファイル名も自動で決定。
     """
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,7 +32,9 @@ def log_quota_usage(
                     daily_total += int(m.group(1))
     else:
         old_lines = []
-    log_line = f'{now_str}, api: {api_name}, quota: {quota_used}, search.list: {search_list_count}, videos.list: {videos_list_count}, daily_total_quota: {daily_total}\n'
+    # プログラム名が指定されていなければ空文字列
+    program_str = f", program: {caller_program}" if caller_program else ""
+    log_line = f'{now_str}, api: {api_name}, quota: {quota_used}, search.list: {search_list_count}, videos.list: {videos_list_count}, daily_total_quota: {daily_total}{program_str}\n'
     with open(log_file_path, 'w') as f:
         f.write(log_line)
         f.writelines(old_lines)
@@ -53,9 +56,9 @@ def log_gemini_quota_usage(prompt_tokens, completion_tokens, total_tokens):
             lines = f.readlines()
     else:
         lines = []
-    # 本日分の累計を計算
+    # 本日分の累計を計算（過去分のdaily_totalではなく、total値のみ合計）
     today = now.strftime('%Y-%m-%d')
-    daily_total = total_tokens
+    daily_total = 0
     for line in lines:
         if line.startswith('//'):
             continue
@@ -63,7 +66,11 @@ def log_gemini_quota_usage(prompt_tokens, completion_tokens, total_tokens):
             parts = line.strip().split(',')
             for p in parts:
                 if 'total:' in p:
-                    daily_total += int(p.split(':')[1].strip())
+                    try:
+                        daily_total += int(p.split(':')[1].strip())
+                    except Exception:
+                        pass
+    daily_total += total_tokens
     # ログ行作成
     log_line = f"{now_str}, prompt: {prompt_tokens}, completion: {completion_tokens}, total: {total_tokens}, daily_total: {daily_total}\n"
     # 先頭に追記
