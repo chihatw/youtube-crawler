@@ -38,7 +38,7 @@ def get_subscribed_channel_ids(youtube, max_results=50):
 if __name__ == "__main__":
     youtube = get_authenticated_service()
     channel_ids = get_subscribed_channel_ids(youtube)
-    output_file = "subscribed_channel_ids.txt"  # 出力ファイル名
+    output_file = "../subscribed_channel_ids.txt"  # 出力ファイル名
     with open(output_file, "w", encoding="utf-8") as f:
         for cid in channel_ids:
             f.write(cid + "\n")
