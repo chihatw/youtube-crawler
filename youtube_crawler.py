@@ -49,8 +49,7 @@ def get_latest_videos(channel_id, api_key, max_results=5):
         return None
 
 if __name__ == "__main__":
-    channel_id = "UCmMnzrvnsSnv-0u9M1Rxiqw"  # 例：HikakinTVのチャンネルID
-    # api_key = "AIzaSyBLCHOI_c_xyWo-NbtQaDa6PGdKkpV-xEk"  # 取得したAPIキーを設定してください
+    channel_id = "UCmMnzrvnsSnv-0u9M1Rxiqw"  
     latest_titles = get_latest_videos(channel_id, api_key)
 
     with open(file_path, 'w' ,encoding='utf-8') as file:
