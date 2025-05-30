@@ -40,10 +40,13 @@ if os.path.exists(recent_videos_path):
                 existing_urls.add(parts[0].strip())
 
 # 取得基準日時を決定
-if latest_datetime:
+now_utc = datetime.now(timezone.utc)
+if latest_datetime and (now_utc - latest_datetime).total_seconds() <= 86400:
+    # 最新日時が1日以内なら、その直後から取得
     published_after = latest_datetime.isoformat().replace('+00:00', 'Z')
 else:
-    published_after = (datetime.now(timezone.utc) - timedelta(days=3)).isoformat('T').replace('+00:00', 'Z')
+    # それ以外は24時間前から取得
+    published_after = (now_utc - timedelta(days=1)).isoformat('T').replace('+00:00', 'Z')
 
 with open(CHANNEL_IDS_FILE, 'r') as f:
     channel_ids = [line.strip() for line in f if line.strip() and not line.startswith('//')]
@@ -62,7 +65,6 @@ results = []
 new_results = []
 
 for channel_id in channel_ids:
-    print(f'Checking channel: {channel_id}')  # デバッグ
     url = 'https://www.googleapis.com/youtube/v3/search'
     params = {
         'key': API_KEY,
@@ -73,14 +75,10 @@ for channel_id in channel_ids:
         'type': 'video',
         'maxResults': 50
     }
-    print(f'API params: {params}')  # デバッグ
     response = requests.get(url, params=params)
-    print(f'Status code: {response.status_code}')  # デバッグ
     if response.status_code != 200:
-        print(f'Error response: {response.text}')  # デバッグ
         continue
     data = response.json()
-    print(f'Items found: {len(data.get("items", []))}')  # デバッグ
     for item in data.get('items', []):
         video_id = item['id']['videoId']
         video_url = f'https://www.youtube.com/watch?v={video_id}'
