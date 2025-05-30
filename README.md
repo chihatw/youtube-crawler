@@ -40,16 +40,14 @@
 
 ### quota_logger.py
 
-API ごとのクォータ消費量を記録・管理する共通モジュールです。  
-各スクリプトから `log_quota_usage()` を呼び出すことで、  
-`youtube_quota_usage_log.txt` など API ごとのログファイルに
+API ごとのクォータ消費量やトークン数を記録・管理する共通モジュールです。
 
-- 記録日時（PST 基準）
-- 推定クォータ消費量
-- search.list 回数
-- videos.list 回数
-- 1 日累計推定クォータ消費量  
-  を追記します。
+- YouTube API 用: `log_quota_usage()` を呼び出すことで `youtube_quota_usage_log.txt` などに記録されます。
+- Gemini API 用: `log_gemini_quota_usage()` を呼び出すことで `gemini_quota_usage_log.txt` に送信・受信・合計トークン数と 1 日累計合計トークン数が記録されます。
+- どちらのログも PST 基準で日時降順に追記されます。
+- Gemini API のログファイルや要約 Markdown ファイル（`summarized/` 配下）は `.gitignore` で管理対象外です。
+
+各スクリプトからこれらの関数を呼び出すことで、API ごとのログファイルに自動的に記録されます。
 
 ### get_subscribed_channels.py
 
@@ -85,8 +83,12 @@ API クォータ消費量は `quota_logger.py` を通じて `youtube_quota_usage
 
 ### summarize_youtube_url.py
 
-YouTube 動画の説明文を YouTube Data API で取得し、Gemini API で要約します。  
-YouTube API のクォータ消費量のみ `quota_logger.py` を通じて `youtube_quota_usage_log.txt` に記録されます。
+YouTube 動画の説明文を YouTube Data API で取得し、Gemini API で要約します。
+
+- YouTube API のクォータ消費量のみ `quota_logger.py` を通じて `youtube_quota_usage_log.txt` に記録されます。
+- Gemini API のトークン送受信・合計トークン数は `gemini_quota_usage_log.txt` に記録されます（1 日ごとの合計トークン数も記録）。
+- Gemini API のログは `.gitignore` で管理対象外です。
+- 要約 Markdown ファイル（`summarized/`配下）も `.gitignore` で管理対象外です。
 
 ---
 

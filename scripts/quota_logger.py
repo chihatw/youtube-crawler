@@ -35,3 +35,38 @@ def log_quota_usage(
     with open(log_file_path, 'w') as f:
         f.write(log_line)
         f.writelines(old_lines)
+
+def log_gemini_quota_usage(prompt_tokens, completion_tokens, total_tokens):
+    """
+    Gemini APIのトークン使用量をログファイルに追記（先頭に追加、PSTで日時降順）
+    """
+    from zoneinfo import ZoneInfo
+    import datetime
+    import os
+    log_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'gemini_quota_usage_log.txt')
+    # 現在時刻（PST）
+    now = datetime.datetime.now(ZoneInfo("America/Los_Angeles"))
+    now_str = now.strftime('%Y-%m-%dT%H:%M:%S%z')
+    # 既存ログ読み込み
+    if os.path.exists(log_path):
+        with open(log_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    else:
+        lines = []
+    # 本日分の累計を計算
+    today = now.strftime('%Y-%m-%d')
+    daily_total = total_tokens
+    for line in lines:
+        if line.startswith('//'):
+            continue
+        if f"{today}" in line:
+            parts = line.strip().split(',')
+            for p in parts:
+                if 'total:' in p:
+                    daily_total += int(p.split(':')[1].strip())
+    # ログ行作成
+    log_line = f"{now_str}, prompt: {prompt_tokens}, completion: {completion_tokens}, total: {total_tokens}, daily_total: {daily_total}\n"
+    # 先頭に追記
+    lines = [log_line] + [l for l in lines if l.strip()]
+    with open(log_path, 'w', encoding='utf-8') as f:
+        f.writelines(lines)

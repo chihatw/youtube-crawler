@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 import google.generativeai as genai
 import requests
-from quota_logger import log_quota_usage
+from quota_logger import log_quota_usage, log_gemini_quota_usage
 
 # Gemini APIキーのロード
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
@@ -54,10 +54,16 @@ def summarize_youtube_url(meta: dict, description: str, youtube_url: str) -> str
     動画URL: {youtube_url}
     説明文: {description}
     """
-    print(f"[DEBUG] プロンプト内容:\n{prompt}")
     response = model.generate_content(prompt)
-    print(f"[DEBUG] Gemini API生レスポンス:\n{response}")
+    summarize_youtube_url.api_call_count += 1
+    # トークン数取得
+    prompt_tokens = response.usage_metadata.prompt_token_count
+    completion_tokens = response.usage_metadata.candidates_token_count
+    total_tokens = response.usage_metadata.total_token_count
+    # Geminiトークン使用量をログ
+    log_gemini_quota_usage(prompt_tokens, completion_tokens, total_tokens)
     return response.text.strip()
+summarize_youtube_url.api_call_count = 0
 
 if __name__ == "__main__":
     # テスト用URL

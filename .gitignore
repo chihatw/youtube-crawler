@@ -5,3 +5,4 @@ subscribed_channel_ids.txt
 *_log.txt
 __pycache__/
 *.pyc
+summarized/
