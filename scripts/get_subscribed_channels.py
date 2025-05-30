@@ -3,6 +3,10 @@ import googleapiclient.discovery
 import googleapiclient.errors
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from zoneinfo import ZoneInfo
+import re
+from datetime import datetime
+from quota_logger import log_quota_usage
 
 # 認証に必要なスコープ
 SCOPES = ["https://www.googleapis.com/auth/youtube.readonly"]
@@ -37,9 +41,32 @@ def get_subscribed_channel_ids(youtube, max_results=50):
 
 if __name__ == "__main__":
     youtube = get_authenticated_service()
-    channel_ids = get_subscribed_channel_ids(youtube)
+    subscriptions_list_count = 0  # subscriptions.list呼び出し回数
+    channel_ids = []
+    next_page_token = None
+    while True:
+        request = youtube.subscriptions().list(
+            part="snippet",
+            mine=True,
+            maxResults=50,
+            pageToken=next_page_token
+        )
+        response = request.execute()
+        subscriptions_list_count += 1
+        for item in response.get("items", []):
+            channel_id = item["snippet"]["resourceId"]["channelId"]
+            channel_ids.append(channel_id)
+        next_page_token = response.get("nextPageToken")
+        if not next_page_token:
+            break
     output_file = "../subscribed_channel_ids.txt"  # 出力ファイル名
     with open(output_file, "w", encoding="utf-8") as f:
         for cid in channel_ids:
             f.write(cid + "\n")
     print(f"登録チャンネルのchannel_idリストを {output_file} に出力しました。")
+
+    # クォータ消費量の計算とログ
+    quota_used = subscriptions_list_count * 5
+    search_list_count = 0
+    videos_list_count = 0
+    log_quota_usage(quota_used, search_list_count, videos_list_count, api_name="youtube")

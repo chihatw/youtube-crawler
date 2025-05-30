@@ -4,6 +4,8 @@ import requests
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 import re
+from zoneinfo import ZoneInfo
+from quota_logger import log_quota_usage
 
 # ルートディレクトリを基準にファイルパスを指定
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -124,3 +126,11 @@ with open(OUTPUT_FILE, 'w') as f:
         f.write(f'{video_url}, {published_at}, {channel_id}, {channel_name}, {title}, {duration}\n')
 
 print(f'動画情報を {OUTPUT_FILE} に出力しました')
+
+# クォータ消費量の計算
+search_list_count = len(channel_ids)  # search.listはチャンネルごとに1回
+videos_list_count = sum([1 for r in new_results])  # videos.listは新規動画ごとに1回
+quota_used = search_list_count * 100 + videos_list_count * 1
+
+# ログファイルに記録（共通関数利用）
+log_quota_usage(quota_used, search_list_count, videos_list_count, api_name="youtube")

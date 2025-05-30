@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 import google.generativeai as genai
 import requests
+from quota_logger import log_quota_usage
 
 # Gemini APIキーのロード
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
@@ -19,6 +20,8 @@ def get_youtube_description(video_id: str, api_key: str) -> str:
         'key': api_key
     }
     resp = requests.get(url, params=params)
+    # API呼び出し回数をカウント
+    get_youtube_description.api_call_count += 1
     if resp.status_code != 200:
         print(f"[ERROR] YouTube API error: {resp.text}")
         return {}, ""
@@ -34,6 +37,7 @@ def get_youtube_description(video_id: str, api_key: str) -> str:
     }
     description = snippet.get('description', '')
     return meta, description
+get_youtube_description.api_call_count = 0
 
 def summarize_youtube_url(meta: dict, description: str, youtube_url: str) -> str:
     """
@@ -79,3 +83,8 @@ if __name__ == "__main__":
         f.write(f"**サムネイル:** ![]({meta.get('thumbnail','')})\n\n")
         f.write(f"{summary}\n")
     print(f"要約を {out_path} に保存しました")
+    # YouTube APIクォータログ
+    quota_used = get_youtube_description.api_call_count * 1  # videos.listは1回1unit
+    search_list_count = 0
+    videos_list_count = get_youtube_description.api_call_count  # videos.listのみカウント
+    log_quota_usage(quota_used, search_list_count, videos_list_count, api_name="youtube")

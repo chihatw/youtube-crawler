@@ -2,3 +2,6 @@
 credentials.json
 channel_names.txt
 subscribed_channel_ids.txt
+*_log.txt
+__pycache__/
+*.pyc

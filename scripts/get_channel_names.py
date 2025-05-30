@@ -1,6 +1,7 @@
 import os
 import googleapiclient.discovery
 from dotenv import load_dotenv
+from quota_logger import log_quota_usage
 
 # .envファイルからAPIキーを取得
 load_dotenv()
@@ -17,11 +18,14 @@ def get_channel_name(channel_id, api_key):
         id=channel_id
     )
     response = request.execute()
+    # 1回のchannels.list呼び出しごとにカウント
+    get_channel_name.api_call_count += 1
     items = response.get('items', [])
     if items:
         return items[0]['snippet']['title']
     else:
         return None
+get_channel_name.api_call_count = 0
 
 def main():
     with open(input_file, 'r', encoding='utf-8') as f:
@@ -35,6 +39,12 @@ def main():
             else:
                 f.write(f'{cid}\tチャンネル名取得失敗\n')
     print(f'チャンネル名リストを {output_file} に出力しました。')
+
+    # クォータ消費量の計算とログ
+    quota_used = get_channel_name.api_call_count * 1  # channels.listは1回1unit
+    search_list_count = 0
+    videos_list_count = 0
+    log_quota_usage(quota_used, search_list_count, videos_list_count, api_name="youtube")
 
 if __name__ == '__main__':
     main()
