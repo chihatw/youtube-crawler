@@ -78,8 +78,11 @@ API クォータ消費量は `quota_logger.py` を通じて `youtube_quota_usage
 ### get_recent_videos.py
 
 `subscribed_channel_ids.txt` の各チャンネルについて、YouTube API（search.list, videos.list）で  
-最近の動画情報を取得し、`recent_videos.txt` に出力します。  
-API クォータ消費量は `quota_logger.py` を通じて `youtube_quota_usage_log.txt` に記録されます。
+最近の動画情報を取得し、`recent_videos.txt` に出力します。
+
+- 取得期間は「recent_videos.txt の最新日時が 1 日以内ならその直後から取得、そうでなければ 24 時間前から取得」です。
+- 新規取得動画数が標準出力に表示されます。
+  API クォータ消費量は `quota_logger.py` を通じて `youtube_quota_usage_log.txt` に記録されます。
 
 ---
 

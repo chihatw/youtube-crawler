@@ -123,6 +123,7 @@ with open(OUTPUT_FILE, 'w') as f:
     for published_at, video_url, channel_id, channel_name, title, duration in all_results:
         f.write(f'{video_url}, {published_at}, {channel_id}, {channel_name}, {title}, {duration}\n')
 
+print(f'新規取得動画数: {len(new_results)}')
 print(f'動画情報を {OUTPUT_FILE} に出力しました')
 
 # クォータ消費量の計算
