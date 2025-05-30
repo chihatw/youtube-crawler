@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 import requests
 from quota_logger import log_quota_usage, log_gemini_quota_usage
+from utils import sanitize_filename
 
 # Gemini APIキーのロード
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
@@ -80,11 +81,13 @@ if __name__ == "__main__":
     # 出力先ディレクトリ
     out_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'summarized')
     os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, f"{video_id}.md")
+    # ファイル名に使えない文字を除去・置換
+    channel = sanitize_filename(meta.get('channelTitle', 'unknown'))
+    title = sanitize_filename(meta.get('title', 'unknown'))
+    out_path = os.path.join(out_dir, f"{channel}_{title}.md")
     with open(out_path, 'w', encoding='utf-8') as f:
-        f.write(f"# 要約: {youtube_url}\n\n")
+        f.write(f"# [{meta.get('title','')}]({youtube_url})\n\n")
         f.write(f"**チャンネル名:** {meta.get('channelTitle','')}\n\n")
-        f.write(f"**動画タイトル:** {meta.get('title','')}\n\n")
         f.write(f"**公開日時:** {meta.get('publishedAt','')}\n\n")
         f.write(f"**サムネイル:** ![]({meta.get('thumbnail','')})\n\n")
         f.write(f"{summary}\n")

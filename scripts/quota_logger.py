@@ -56,21 +56,22 @@ def log_gemini_quota_usage(prompt_tokens, completion_tokens, total_tokens):
             lines = f.readlines()
     else:
         lines = []
-    # 本日分の累計を計算（過去分のdaily_totalではなく、total値のみ合計）
-    today = now.strftime('%Y-%m-%d')
-    daily_total = 0
+    # 直下の行のdaily_totalを取得
+    next_daily_total = 0
     for line in lines:
         if line.startswith('//'):
             continue
-        if f"{today}" in line:
-            parts = line.strip().split(',')
-            for p in parts:
-                if 'total:' in p:
-                    try:
-                        daily_total += int(p.split(':')[1].strip())
-                    except Exception:
-                        pass
-    daily_total += total_tokens
+        parts = line.strip().split(',')
+        for p in parts:
+            if 'daily_total:' in p:
+                try:
+                    next_daily_total = int(p.split(':')[1].strip())
+                except Exception:
+                    next_daily_total = 0
+                break
+        if next_daily_total:
+            break
+    daily_total = total_tokens + next_daily_total
     # ログ行作成
     log_line = f"{now_str}, prompt: {prompt_tokens}, completion: {completion_tokens}, total: {total_tokens}, daily_total: {daily_total}\n"
     # 先頭に追記
