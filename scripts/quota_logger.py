@@ -50,28 +50,30 @@ def log_gemini_quota_usage(prompt_tokens, completion_tokens, total_tokens):
     # 現在時刻（PST）
     now = datetime.datetime.now(ZoneInfo("America/Los_Angeles"))
     now_str = now.strftime('%Y-%m-%dT%H:%M:%S%z')
+    today_str = now.strftime('%Y-%m-%d')
     # 既存ログ読み込み
     if os.path.exists(log_path):
         with open(log_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
     else:
         lines = []
-    # 直下の行のdaily_totalを取得
-    next_daily_total = 0
+    # 同じ日付のtotalを合計
+    daily_total = total_tokens
     for line in lines:
         if line.startswith('//'):
             continue
         parts = line.strip().split(',')
-        for p in parts:
-            if 'daily_total:' in p:
-                try:
-                    next_daily_total = int(p.split(':')[1].strip())
-                except Exception:
-                    next_daily_total = 0
-                break
-        if next_daily_total:
-            break
-    daily_total = total_tokens + next_daily_total
+        if not parts or len(parts) < 1:
+            continue
+        # 日付部分を抽出
+        date_part = parts[0].split('T')[0]
+        if date_part == today_str:
+            for p in parts:
+                if 'total:' in p and 'daily_total:' not in p:
+                    try:
+                        daily_total += int(p.split(':')[1].strip())
+                    except Exception:
+                        pass
     # ログ行作成
     log_line = f"{now_str}, prompt: {prompt_tokens}, completion: {completion_tokens}, total: {total_tokens}, daily_total: {daily_total}\n"
     # 先頭に追記

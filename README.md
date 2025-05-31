@@ -9,26 +9,31 @@
 
 依存関係の競合やバージョン違いによるトラブルを避けるため、**仮想環境の利用を推奨**します。
 
-1. 仮想環境を有効化（初回のみ仮想環境を作成してください）
+1. 仮想環境を作成（初回のみ）
 
    ```sh
    python3 -m venv venv
+   ```
+
+2. 仮想環境を有効化（毎回必要）
+
+   ```sh
    source venv/bin/activate
    ```
 
-2. 必要なパッケージをインストール
+3. 必要なパッケージをインストール
 
    ```sh
    pip install -r requirements.txt
    ```
 
-3. スクリプトを実行
+4. スクリプトを実行
 
    ```sh
    python3 scripts/xxx.py
    ```
 
-4. 仮想環境を無効化
+5. 仮想環境を無効化
 
    ```sh
    deactivate
@@ -86,14 +91,58 @@ API クォータ消費量は `quota_logger.py` を通じて `youtube_quota_usage
 
 ---
 
-### summarize_youtube_url.py
+### summarize_youtube_url.py（2025/05/31 更新）
 
-YouTube 動画の説明文を YouTube Data API で取得し、Gemini API で要約します。
+- 1 つの YouTube 動画 URL を**コマンドライン引数で受け取り**、要約 Markdown を生成・保存する `summarize_and_save_youtube_url(youtube_url: str)` 関数を提供します。
+- 直接実行時は `python3 scripts/summarize_youtube_url.py <YouTubeのURL>` のように URL を指定してください。
+- 他のスクリプトからも関数呼び出しで要約処理を利用できます。
+- エラー時は `summarize_youtube_url_log.txt` に記録されます。
 
-- YouTube API のクォータ消費量のみ `quota_logger.py` を通じて `youtube_quota_usage_log.txt` に記録されます。
-- Gemini API のトークン送受信・合計トークン数は `gemini_quota_usage_log.txt` に記録されます（1 日ごとの合計トークン数も記録）。
-- Gemini API のログは `.gitignore` で管理対象外です。
-- 要約 Markdown ファイル（`summarized/`配下）も `.gitignore` で管理対象外です。
+---
+
+### batch_summarize.py（バッチ要約スクリプト・自動ループ対応）
+
+`recent_videos.txt` から未要約の URL を日付の古い順に自動で 1 件ずつ要約し、`summarized_urls.txt` に記録します。
+
+- 1 件処理ごとに `summarized_urls.txt` へ追記します。
+- `summarize_youtube_url_log.txt` が空であれば、次の未処理 URL を自動で処理し続けます。
+- エラーが `summarize_youtube_url_log.txt` に記録された時点、または全 URL 処理済みで停止します。
+- `recent_videos.txt` の形式は `get_recent_videos.py` の出力仕様（カンマ区切り）に対応しています。
+- `summarized_urls.txt` に既に記載された URL はスキップされます。
+- **1 行に複数 URL が連結されている場合も自動で分割して重複処理を防ぎます。**
+
+#### 使い方
+
+```sh
+python3 scripts/batch_summarize.py
+```
+
+- 途中でエラーが発生した場合は `summarize_youtube_url_log.txt` を確認してください。
+- エラー解消後、再度実行すれば未処理分から再開します。
+- **`summarized_urls.txt` は 1 行につき 1URL となるようにしてください。もし 1 行に複数 URL が連結されている場合は手動で修正してください。**
+
+---
+
+## 実行時の注意（ImportError 対策）
+
+`scripts/` ディレクトリ配下のスクリプトは、
+**「スクリプト実行」形式（python scripts/xxx.py）で動作します。**
+
+### ⭕ 正しい例
+
+```sh
+python scripts/batch_summarize.py
+```
+
+### ❌ パッケージ import 用の実行例（本リポジトリでは不要）
+
+```sh
+python -m scripts.batch_summarize
+```
+
+> **理由:**
+> 本リポジトリの import は「ファイル名のみ」で行っているため、スクリプト実行で十分です。
+> 上位階層からのパッケージ import やテスト用途がなければ、-m オプションは不要です。
 
 ---
 
