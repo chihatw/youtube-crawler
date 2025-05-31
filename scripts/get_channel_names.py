@@ -1,3 +1,6 @@
+from utils import ensure_virtualenv
+ensure_virtualenv()
+
 import os
 import googleapiclient.discovery
 from dotenv import load_dotenv

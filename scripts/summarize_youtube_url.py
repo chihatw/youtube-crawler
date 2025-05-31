@@ -1,9 +1,12 @@
+from utils import ensure_virtualenv
+ensure_virtualenv()
+
 import os
 from dotenv import load_dotenv
 import google.generativeai as genai
 import requests
 from quota_logger import log_quota_usage, log_gemini_quota_usage
-from utils import sanitize_filename
+from utils import sanitize_filename, ensure_virtualenv
 
 # --- 追加: ログファイルのパス ---
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

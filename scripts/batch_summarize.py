@@ -1,3 +1,5 @@
+from utils import ensure_virtualenv
+ensure_virtualenv()
 import os
 from datetime import datetime
 from summarize_youtube_url import summarize_and_save_youtube_url

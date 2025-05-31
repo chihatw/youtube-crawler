@@ -1,4 +1,8 @@
+from utils import ensure_virtualenv
+ensure_virtualenv()
 import os
+from dotenv import load_dotenv
+load_dotenv()
 import googleapiclient.discovery
 import googleapiclient.errors
 from google_auth_oauthlib.flow import InstalledAppFlow

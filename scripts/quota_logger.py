@@ -1,3 +1,5 @@
+from utils import ensure_virtualenv
+ensure_virtualenv()
 import os
 import re
 from datetime import datetime

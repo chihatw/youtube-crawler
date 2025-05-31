@@ -1,3 +1,6 @@
+from utils import ensure_virtualenv
+ensure_virtualenv()
+
 import os
 import json
 import requests
