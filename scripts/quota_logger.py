@@ -17,7 +17,7 @@ def log_quota_usage(
     api_nameでAPI種別を記録し、ログファイル名も自動で決定。
     """
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    log_file_path = os.path.join(base_dir, f"{api_name}_quota_usage_log.txt")
+    log_file_path = os.path.abspath(os.path.join(base_dir, f"{api_name}_quota_usage_log.txt"))
     now_pst = datetime.now(ZoneInfo("America/Los_Angeles"))
     now_str = now_pst.strftime('%Y-%m-%dT%H:%M:%S%z')
     if len(now_str) > 19:
@@ -37,9 +37,12 @@ def log_quota_usage(
     # プログラム名が指定されていなければ空文字列
     program_str = f", program: {caller_program}" if caller_program else ""
     log_line = f'{now_str}, api: {api_name}, quota: {quota_used}, search.list: {search_list_count}, videos.list: {videos_list_count}, daily_total_quota: {daily_total}{program_str}\n'
-    with open(log_file_path, 'w') as f:
-        f.write(log_line)
-        f.writelines(old_lines)
+    try:
+        with open(log_file_path, 'w') as f:
+            f.write(log_line)
+            f.writelines(old_lines)
+    except Exception as e:
+        print(f"[ERROR] Failed to write quota log: {e}")
 
 def log_gemini_quota_usage(prompt_tokens, completion_tokens, total_tokens):
     """
@@ -48,7 +51,7 @@ def log_gemini_quota_usage(prompt_tokens, completion_tokens, total_tokens):
     from zoneinfo import ZoneInfo
     import datetime
     import os
-    log_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'gemini_quota_usage_log.txt')
+    log_path = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'gemini_quota_usage_log.txt'))
     # 現在時刻（PST）
     now = datetime.datetime.now(ZoneInfo("America/Los_Angeles"))
     now_str = now.strftime('%Y-%m-%dT%H:%M:%S%z')
@@ -80,5 +83,8 @@ def log_gemini_quota_usage(prompt_tokens, completion_tokens, total_tokens):
     log_line = f"{now_str}, prompt: {prompt_tokens}, completion: {completion_tokens}, total: {total_tokens}, daily_total: {daily_total}\n"
     # 先頭に追記
     lines = [log_line] + [l for l in lines if l.strip()]
-    with open(log_path, 'w', encoding='utf-8') as f:
-        f.writelines(lines)
+    try:
+        with open(log_path, 'w', encoding='utf-8') as f:
+            f.writelines(lines)
+    except Exception as e:
+        print(f"[ERROR] Failed to write gemini quota log: {e}")

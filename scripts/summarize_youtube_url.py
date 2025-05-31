@@ -10,7 +10,7 @@ from utils import sanitize_filename, ensure_virtualenv
 
 # --- 追加: ログファイルのパス ---
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-LOG_PATH = os.path.join(BASE_DIR, 'summarize_youtube_url_log.txt')
+LOG_PATH = os.path.abspath(os.path.join(BASE_DIR, 'summarize_youtube_url_log.txt'))
 
 # --- 追加: ログファイルが空でなければ停止 ---
 if os.path.exists(LOG_PATH):
@@ -93,11 +93,11 @@ def summarize_and_save_youtube_url(youtube_url: str) -> None:
             summary = "(説明文が取得できませんでした)"
         else:
             summary = summarize_youtube_url(meta, description, youtube_url)
-        out_dir = os.path.join(BASE_DIR, 'summarized')
+        out_dir = os.path.abspath(os.path.join(BASE_DIR, 'summarized'))
         os.makedirs(out_dir, exist_ok=True)
         channel = sanitize_filename(meta.get('channelTitle', 'unknown'))
         title = sanitize_filename(meta.get('title', 'unknown'))
-        out_path = os.path.join(out_dir, f"{channel}_{title}.md")
+        out_path = os.path.abspath(os.path.join(out_dir, f"{channel}_{title}.md"))
         with open(out_path, 'w', encoding='utf-8') as f:
             f.write(f"# [{meta.get('title','')}]({youtube_url})\n\n")
             f.write(f"**チャンネル名:** {meta.get('channelTitle','')}\n\n")

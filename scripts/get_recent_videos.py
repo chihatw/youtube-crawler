@@ -16,8 +16,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 API_KEY = os.getenv('API_KEY')
 
-CHANNEL_IDS_FILE = os.path.join(BASE_DIR, 'subscribed_channel_ids.txt')
-OUTPUT_FILE = os.path.join(BASE_DIR, 'recent_videos.txt')
+CHANNEL_IDS_FILE = os.path.abspath(os.path.join(BASE_DIR, 'subscribed_channel_ids.txt'))
+OUTPUT_FILE = os.path.abspath(os.path.join(BASE_DIR, 'recent_videos.txt'))
 
 # recent_videos.txt から最新日時を取得
 recent_videos_path = OUTPUT_FILE
@@ -55,7 +55,7 @@ with open(CHANNEL_IDS_FILE, 'r') as f:
     channel_ids = [line.strip() for line in f if line.strip() and not line.startswith('//')]
 
 # channel_names.txtを辞書として読み込む
-CHANNEL_NAMES_FILE = os.path.join(BASE_DIR, 'channel_names.txt')
+CHANNEL_NAMES_FILE = os.path.abspath(os.path.join(BASE_DIR, 'channel_names.txt'))
 channel_id_to_name = {}
 with open(CHANNEL_NAMES_FILE, 'r') as f:
     for line in f:

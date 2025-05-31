@@ -27,6 +27,7 @@ def get_authenticated_service():
 def get_subscribed_channel_ids(youtube, max_results=50):
     channel_ids = []
     next_page_token = None
+    page = 1
     while True:
         request = youtube.subscriptions().list(
             part="snippet",
@@ -35,12 +36,14 @@ def get_subscribed_channel_ids(youtube, max_results=50):
             pageToken=next_page_token
         )
         response = request.execute()
-        for item in response.get("items", []):
+        items = response.get("items", [])
+        for item in items:
             channel_id = item["snippet"]["resourceId"]["channelId"]
             channel_ids.append(channel_id)
         next_page_token = response.get("nextPageToken")
         if not next_page_token:
             break
+        page += 1
     return channel_ids
 
 if __name__ == "__main__":
@@ -48,7 +51,9 @@ if __name__ == "__main__":
     subscriptions_list_count = 0  # subscriptions.list呼び出し回数
     channel_ids = []
     next_page_token = None
+    page = 1
     while True:
+        print(f"[DEBUG] subscriptions().list request: page={page}, next_page_token={next_page_token}")
         request = youtube.subscriptions().list(
             part="snippet",
             mine=True,
@@ -56,18 +61,28 @@ if __name__ == "__main__":
             pageToken=next_page_token
         )
         response = request.execute()
+        print(f"[DEBUG] API response keys: {list(response.keys())}")
         subscriptions_list_count += 1
-        for item in response.get("items", []):
+        items = response.get("items", [])
+        print(f"[DEBUG] items count: {len(items)}")
+        for item in items:
             channel_id = item["snippet"]["resourceId"]["channelId"]
+            print(f"[DEBUG] Got channel_id: {channel_id}")
             channel_ids.append(channel_id)
         next_page_token = response.get("nextPageToken")
         if not next_page_token:
             break
-    output_file = "../subscribed_channel_ids.txt"  # 出力ファイル名
-    with open(output_file, "w", encoding="utf-8") as f:
-        for cid in channel_ids:
-            f.write(cid + "\n")
-    print(f"登録チャンネルのchannel_idリストを {output_file} に出力しました。")
+        page += 1
+    # 出力ファイル名を絶対パスで指定
+    output_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "../subscribed_channel_ids.txt"))
+    print(f"[DEBUG] Writing {len(channel_ids)} channel_ids to {output_file}")
+    try:
+        with open(output_file, "w", encoding="utf-8") as f:
+            for cid in channel_ids:
+                f.write(cid + "\n")
+        print(f"登録チャンネルのchannel_idリストを {output_file} に出力しました。")
+    except Exception as e:
+        print(f"[ERROR] Failed to write to {output_file}: {e}")
 
     # クォータ消費量の計算とログ
     quota_used = subscriptions_list_count * 5

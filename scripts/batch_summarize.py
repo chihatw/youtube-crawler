@@ -4,8 +4,9 @@ import os
 from datetime import datetime
 from summarize_youtube_url import summarize_and_save_youtube_url
 
-RECENT_VIDEOS_PATH = os.path.join(os.path.dirname(__file__), '../recent_videos.txt')
-SUMMARIZED_URLS_PATH = os.path.join(os.path.dirname(__file__), '../summarized_urls.txt')
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RECENT_VIDEOS_PATH = os.path.abspath(os.path.join(BASE_DIR, 'recent_videos.txt'))
+SUMMARIZED_URLS_PATH = os.path.abspath(os.path.join(BASE_DIR, 'summarized_urls.txt'))
 
 
 def read_urls_with_dates(filepath):
@@ -68,7 +69,7 @@ def main():
             f.write(url + '\n')
         print(f"summarized_urls.txt に追記しました: {url}")
         # summarize_youtube_url_log.txt が空かどうか確認
-        log_path = os.path.join(os.path.dirname(__file__), '../summarize_youtube_url_log.txt')
+        log_path = os.path.abspath(os.path.join(BASE_DIR, 'summarize_youtube_url_log.txt'))
         if os.path.exists(log_path):
             with open(log_path, 'r', encoding='utf-8') as logf:
                 if logf.read().strip():

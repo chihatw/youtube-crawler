@@ -17,9 +17,8 @@ api_key=os.getenv('API_KEY')
 
 # デスクトップのパスを取得
 desktop_path = os.path.expanduser('~/Desktop')
-
 # 保存するファイル名とパスを指定
-file_path = os.path.join(desktop_path, 'output.txt')
+file_path = os.path.abspath(os.path.join(desktop_path, 'output.txt'))
 
 def get_latest_videos(channel_id, api_key, max_results=5):
     """

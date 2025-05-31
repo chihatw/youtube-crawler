@@ -11,8 +11,9 @@ load_dotenv()
 api_key = os.getenv('API_KEY')
 
 # 入力ファイルと出力ファイルのパス
-input_file = '../subscribed_channel_ids.txt'
-output_file = '../channel_names.txt'
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+input_file = os.path.abspath(os.path.join(BASE_DIR, 'subscribed_channel_ids.txt'))
+output_file = os.path.abspath(os.path.join(BASE_DIR, 'channel_names.txt'))
 
 def get_channel_name(channel_id, api_key):
     youtube = googleapiclient.discovery.build('youtube', 'v3', developerKey=api_key)
