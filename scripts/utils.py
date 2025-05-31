@@ -13,5 +13,5 @@ def ensure_virtualenv():
     仮想環境で実行されているかを判定し、そうでなければ警告を出して終了する
     """
     if sys.prefix == sys.base_prefix and 'VIRTUAL_ENV' not in os.environ:
-        print("警告: 仮想環境外で実行されています。仮想環境を有効化してから再実行してください。")
+        print("""警告: 仮想環境外で実行されています。\n仮想環境を有効化してから再実行してください。\n例: source venv/bin/activate""")
         exit(1)

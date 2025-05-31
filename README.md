@@ -135,6 +135,58 @@ python3 scripts/batch_summarize.py
 
 ---
 
+## 自動要約スクリプトの定期実行について
+
+### scripts/run_daily_youtube_tasks.sh について
+
+- 仮想環境を有効化し、`get_recent_videos.py` を実行します。
+- エラーが発生した場合は `get_recent_videos_error_YYYYMMDD.txt` に記録されます。
+- エラーがなければ `batch_summarize.py` を続けて実行します。
+
+### launchd での自動実行設定方法（macOS）
+
+1. **スクリプトの実行権限を付与**
+
+   ```zsh
+   chmod +x scripts/run_daily_youtube_tasks.sh
+   ```
+
+2. **launchd 用 plist ファイルの配置**
+
+   `com.chiha.youtube.daily.plist` を `~/Library/LaunchAgents/` にコピーします。
+
+   ```zsh
+   cp com.chiha.youtube.daily.plist ~/Library/LaunchAgents/
+   chmod 644 ~/Library/LaunchAgents/com.chiha.youtube.daily.plist
+   ```
+
+3. **plist 内のスクリプトパスが正しいことを確認**
+
+   `ProgramArguments` のパスが `scripts/run_daily_youtube_tasks.sh` になっていることを確認してください。
+
+4. **launchd へ登録**
+
+   ```zsh
+   launchctl unload ~/Library/LaunchAgents/com.chiha.youtube.daily.plist 2>/dev/null
+   launchctl load ~/Library/LaunchAgents/com.chiha.youtube.daily.plist
+   ```
+
+5. **動作確認**
+
+   スクリプトを手動実行して動作を確認できます。
+
+   ```zsh
+   ./scripts/run_daily_youtube_tasks.sh
+   ```
+
+---
+
+- launchd は毎朝 5 時にスクリプトを自動実行します。
+- スリープや電源 OFF から復帰した場合も、復帰後に実行されます。
+- ログやエラーファイルは `.gitignore` で管理から除外されています。
+
+---
+
 ## 実行時の注意（ImportError 対策）
 
 `scripts/` ディレクトリ配下のスクリプトは、
