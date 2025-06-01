@@ -10,7 +10,7 @@ from utils import sanitize_filename, ensure_virtualenv
 
 # --- 追加: ログファイルのパス ---
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-LOG_PATH = os.path.abspath(os.path.join(BASE_DIR, 'summarize_youtube_url_log.txt'))
+LOG_PATH = os.path.abspath(os.path.join(BASE_DIR, 'script_logs/summarize_youtube_url_log.txt'))
 
 # --- 追加: ログファイルが空でなければ停止 ---
 if os.path.exists(LOG_PATH):

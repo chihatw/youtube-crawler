@@ -7,3 +7,4 @@ credentials.json
 *.log
 .DS_Store
 SUMMARY.md
+PROMPTS.md

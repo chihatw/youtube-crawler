@@ -17,7 +17,7 @@ def log_quota_usage(
     api_nameでAPI種別を記録し、ログファイル名も自動で決定。
     """
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    log_file_path = os.path.abspath(os.path.join(base_dir, f"{api_name}_quota_usage_log.txt"))
+    log_file_path = os.path.abspath(os.path.join(base_dir, f"usage_logs/{api_name}_quota_usage_log.txt"))
     now_pst = datetime.now(ZoneInfo("America/Los_Angeles"))
     now_str = now_pst.strftime('%Y-%m-%dT%H:%M:%S%z')
     if len(now_str) > 19:
@@ -51,7 +51,7 @@ def log_gemini_quota_usage(prompt_tokens, completion_tokens, total_tokens):
     from zoneinfo import ZoneInfo
     import datetime
     import os
-    log_path = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'gemini_quota_usage_log.txt'))
+    log_path = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'usage_logs/gemini_quota_usage_log.txt'))
     # 現在時刻（PST）
     now = datetime.datetime.now(ZoneInfo("America/Los_Angeles"))
     now_str = now.strftime('%Y-%m-%dT%H:%M:%S%z')

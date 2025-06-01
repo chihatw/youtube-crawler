@@ -74,7 +74,7 @@ if __name__ == "__main__":
             break
         page += 1
     # 出力ファイル名を絶対パスで指定
-    output_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "../subscribed_channel_ids.txt"))
+    output_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "../assets/subscribed_channel_ids.txt"))
     print(f"[DEBUG] Writing {len(channel_ids)} channel_ids to {output_file}")
     try:
         with open(output_file, "w", encoding="utf-8") as f:
