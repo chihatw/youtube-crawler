@@ -51,6 +51,11 @@ else:
     # それ以外は24時間前から取得
     published_after = (now_utc - timedelta(days=1)).isoformat('T').replace('+00:00', 'Z')
 
+# published_after を一時ファイルに保存
+TEMP_PUBLISHED_AFTER_PATH = os.path.abspath(os.path.join(BASE_DIR, 'assets/temp_published_after.txt'))
+with open(TEMP_PUBLISHED_AFTER_PATH, 'w', encoding='utf-8') as f:
+    f.write(published_after + '\n')
+
 with open(CHANNEL_IDS_FILE, 'r') as f:
     channel_ids = [line.strip() for line in f if line.strip() and not line.startswith('//')]
 

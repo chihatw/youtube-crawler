@@ -105,6 +105,10 @@ def summarize_and_save_youtube_url(youtube_url: str) -> None:
             f.write(f"**サムネイル:** ![]({meta.get('thumbnail','')})\n\n")
             f.write(f"{summary}\n")
         print(f"要約を {out_path} に保存しました")
+        # 追加: 作成したmdファイル名を temp ファイルに追記
+        created_mds_path = os.path.abspath(os.path.join(BASE_DIR, 'summarized/created_mds.txt'))
+        with open(created_mds_path, 'a', encoding='utf-8') as f:
+            f.write(f"{channel}_{title}.md\n")
         quota_used = get_youtube_description.api_call_count * 1
         search_list_count = 0
         videos_list_count = get_youtube_description.api_call_count

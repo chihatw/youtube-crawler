@@ -122,6 +122,9 @@ API クォータ消費量は `quota_logger.py` を通じて `youtube_quota_usage
 - `recent_videos.txt` の形式は `get_recent_videos.py` の出力仕様（カンマ区切り）に対応しています。
 - `summarized_urls.txt` に既に記載された URL はスキップされます。
 - **1 行に複数 URL が連結されている場合も自動で分割して重複処理を防ぎます。**
+- **作成した要約 md ファイル一覧は、`summarize_youtube_url.py` で一時ファイル（`summarized/created_mds.txt`）に記録し、`batch_summarize.py` でそれを読み取って `summary.md` に出力します。**
+- **`published_after` の値は日本標準時で「YYYY 年 M 月 D 日 H:M:S（日本標準時）」の形式で summary.md に記載されます。**
+- **クォータ消費量の `daily_total` 行は出力されず、`daily_total_quota` と `gemini_daily_total` のみ記載されます。**
 
 #### 使い方
 
