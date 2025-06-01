@@ -56,7 +56,7 @@ get_youtube_description.api_call_count = 0
 
 def summarize_youtube_url(meta: dict, description: str, youtube_url: str) -> str:
     """
-    Gemini APIにYouTube URLを直接渡して要約を取得する
+    YouTube動画のメタ情報と説明文をもとにGemini APIで要約を取得する
     """
     genai.configure(api_key=GEMINI_API_KEY)
     model = genai.GenerativeModel('gemini-2.0-flash')
