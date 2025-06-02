@@ -12,6 +12,17 @@ from quota_logger import log_quota_usage
 
 # ルートディレクトリを基準にファイルパスを指定
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# --- ログファイル設定 ---
+LOGS_DIR = os.path.abspath(os.path.join(BASE_DIR, 'script_logs'))
+os.makedirs(LOGS_DIR, exist_ok=True)
+log_date = datetime.now(ZoneInfo('Asia/Tokyo')).strftime('%Y%m%d')
+LOG_PATH = os.path.join(LOGS_DIR, f'get_recent_videos_{log_date}.log')
+
+def log(msg):
+    with open(LOG_PATH, 'a', encoding='utf-8') as f:
+        f.write(msg + '\n')
+
 # .envからAPIキーを取得
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 API_KEY = os.getenv('API_KEY')
@@ -56,6 +67,19 @@ TEMP_PUBLISHED_AFTER_PATH = os.path.abspath(os.path.join(BASE_DIR, 'assets/temp_
 with open(TEMP_PUBLISHED_AFTER_PATH, 'w', encoding='utf-8') as f:
     f.write(published_after + '\n')
 
+def to_jst_str(iso_str):
+    try:
+        if iso_str.endswith('Z'):
+            dt = datetime.strptime(iso_str, '%Y-%m-%dT%H:%M:%SZ')
+            dt = dt.replace(tzinfo=timezone.utc)
+        else:
+            dt = datetime.fromisoformat(re.sub(r'Z$', '+00:00', iso_str))
+        jst = dt.astimezone(ZoneInfo('Asia/Tokyo'))
+        return jst.strftime('%Y年%m月%d日 %H:%M:%S（日本標準時）')
+    except Exception:
+        return iso_str
+log(f"[INFO] published_after: {published_after}（{to_jst_str(published_after)}）")
+
 with open(CHANNEL_IDS_FILE, 'r') as f:
     channel_ids = [line.strip() for line in f if line.strip() and not line.startswith('//')]
 
@@ -73,6 +97,8 @@ results = []
 new_results = []
 
 for channel_id in channel_ids:
+    channel_name = channel_id_to_name.get(channel_id, '')
+    log(f"[INFO] チャンネル名: {channel_name}")
     url = 'https://www.googleapis.com/youtube/v3/search'
     params = {
         'key': API_KEY,
@@ -83,18 +109,21 @@ for channel_id in channel_ids:
         'type': 'video',
         'maxResults': 50
     }
+    log(f"[INFO] YouTube APIリクエスト: {url} {params}")
     response = requests.get(url, params=params)
+    log(f"[INFO] YouTube APIレスポンス: {response.text[:500]}{'...省略' if len(response.text)>500 else ''}")
     if response.status_code != 200:
         continue
     data = response.json()
+    video_titles = []
+    count = 0
     for item in data.get('items', []):
         video_id = item['id']['videoId']
         video_url = f'https://www.youtube.com/watch?v={video_id}'
         if video_url in existing_urls:
-            continue  # 既存URLはスキップ
-        published_at = item['snippet']['publishedAt']  # 日付＋時刻
-        title = item['snippet']['title']  # 動画タイトル
-        # 動画の詳細情報を取得し、ショート動画（180秒以下）を除外
+            continue
+        published_at = item['snippet']['publishedAt']
+        title = item['snippet']['title']
         video_details_url = 'https://www.googleapis.com/youtube/v3/videos'
         video_details_params = {
             'key': API_KEY,
@@ -108,15 +137,19 @@ for channel_id in channel_ids:
         if not details_data.get('items'):
             continue
         duration = details_data['items'][0]['contentDetails']['duration']
-        # ISO 8601 duration（例: 'PT2M59S', 'PT3M0S' など）をパース
         match = re.match(r'PT(?:(\d+)M)?(?:(\d+)S)?', duration)
         minutes = int(match.group(1)) if match and match.group(1) else 0
         seconds = int(match.group(2)) if match and match.group(2) else 0
         total_seconds = minutes * 60 + seconds
         if total_seconds <= 180:
-            continue  # 180秒（3分）以下の動画は除外
-        channel_name = channel_id_to_name.get(channel_id, '')
+            continue
+        video_titles.append(f"{title}({minutes}:{str(seconds).zfill(2)})")
+        count += 1
         new_results.append((published_at, video_url, channel_id, channel_name, title, duration))
+    log(f"[INFO] 取得動画数（3分未満除外）: {count}")
+    log("[INFO] 取得動画タイトルリスト:")
+    for t in video_titles:
+        log(f"  - {t}")
 
 # 既存＋新規をまとめて日時降順で並べる
 all_results = []
