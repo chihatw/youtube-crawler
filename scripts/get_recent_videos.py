@@ -96,6 +96,11 @@ with open(CHANNEL_NAMES_FILE, 'r') as f:
 results = []
 new_results = []
 
+# ===== テスト用強制上書き =====
+# published_after = "2025-06-02T20:00:00.564674Z"
+# channel_ids = ["UCzQUP1qoWDoEbmsQxvdjxgQ"]
+# ===== ここまで =====
+
 for channel_id in channel_ids:
     channel_name = channel_id_to_name.get(channel_id, '')
     log(f"[INFO] チャンネル名: {channel_name}")
@@ -115,12 +120,14 @@ for channel_id in channel_ids:
     if response.status_code != 200:
         continue
     data = response.json()
+    log(f"[DEBUG] API items: {json.dumps(data.get('items', []), ensure_ascii=False)}")
     video_titles = []
     count = 0
     for item in data.get('items', []):
         video_id = item['id']['videoId']
         video_url = f'https://www.youtube.com/watch?v={video_id}'
         if video_url in existing_urls:
+            log(f"[DEBUG] skip: 既存URL {video_url}")
             continue
         published_at = item['snippet']['publishedAt']
         title = item['snippet']['title']
@@ -132,16 +139,23 @@ for channel_id in channel_ids:
         }
         details_response = requests.get(video_details_url, params=video_details_params)
         if details_response.status_code != 200:
+            log(f"[DEBUG] skip: details取得失敗 {video_id}")
             continue
         details_data = details_response.json()
         if not details_data.get('items'):
+            log(f"[DEBUG] skip: details items空 {video_id}")
             continue
         duration = details_data['items'][0]['contentDetails']['duration']
-        match = re.match(r'PT(?:(\d+)M)?(?:(\d+)S)?', duration)
-        minutes = int(match.group(1)) if match and match.group(1) else 0
-        seconds = int(match.group(2)) if match and match.group(2) else 0
-        total_seconds = minutes * 60 + seconds
+        log(f"[DEBUG] videoId:{video_id} duration:{duration}")
+        # ISO8601 durationパース
+        match = re.match(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?', duration)
+        hours = int(match.group(1)) if match and match.group(1) else 0
+        minutes = int(match.group(2)) if match and match.group(2) else 0
+        seconds = int(match.group(3)) if match and match.group(3) else 0
+        total_seconds = hours * 3600 + minutes * 60 + seconds
+        log(f"[DEBUG] videoId:{video_id} parsed {hours}h{minutes}m{seconds}s = {total_seconds}s")
         if total_seconds <= 180:
+            log(f"[DEBUG] skip: 3分未満 {video_id} {total_seconds}s")
             continue
         video_titles.append(f"{title}({minutes}:{str(seconds).zfill(2)})")
         count += 1

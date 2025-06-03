@@ -144,8 +144,10 @@ def write_summary():
                     gemini_daily_total = part.split(':')[-1].strip()
 
     # summary.md 出力
+    from datetime import datetime
     summarized_dir = os.path.abspath(os.path.join(BASE_DIR, 'summarized'))
-    summary_path = os.path.abspath(os.path.join(summarized_dir, 'summary.md'))
+    now_str = datetime.now().strftime('%Y%m%d_%H%M%S')
+    summary_path = os.path.abspath(os.path.join(summarized_dir, f'summary_{now_str}.md'))
     with open(summary_path, 'w', encoding='utf-8') as f:
         f.write('# batch_summarize.py 実行サマリー\n\n')
         f.write('## 登録チャンネル\n')
