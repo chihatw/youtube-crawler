@@ -125,6 +125,7 @@ API クォータ消費量は `quota_logger.py` を通じて `youtube_quota_usage
 - **作成した要約 md ファイル一覧は、`summarize_youtube_url.py` で一時ファイル（`summarized/created_mds.txt`）に記録し、`batch_summarize.py` でそれを読み取って `summary.md` に出力します。**
 - **`published_after` の値は日本標準時で「YYYY 年 M 月 D 日 H:M:S（日本標準時）」の形式で summary.md に記載されます。**
 - **クォータ消費量の `daily_total` 行は出力されず、`daily_total_quota` と `gemini_daily_total` のみ記載されます。**
+- **2025 年 6 月以降、`summarized_urls.txt` には「URL, 公開日時（日本標準時）」の形式で記録されます。**
 
 #### 使い方
 

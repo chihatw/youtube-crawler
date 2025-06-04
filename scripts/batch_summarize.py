@@ -190,13 +190,25 @@ def main():
             print("未要約のURLはありません。全て処理済みです。")
             break
         # 1件だけ処理
-        url, _ = unsummarized[0]
+        url, date = unsummarized[0]
         print(f"要約処理: {url}")
         summarize_and_save_youtube_url(url)
-        # summarized_urls.txt に追記
+        # summarized_urls.txt に追記（published_atを人が読みやすい形式で付与）
+        published_at_str = ''
+        if date:
+            try:
+                import re
+                from datetime import timezone, timedelta
+                jst = date.astimezone(timezone(timedelta(hours=9)))
+                published_at_str = jst.strftime('%Y年%m月%d日 %H:%M:%S（日本標準時）')
+            except Exception:
+                published_at_str = str(date)
         with open(SUMMARIZED_URLS_PATH, 'a', encoding='utf-8') as f:
-            f.write(url + '\n')
-        print(f"summarized_urls.txt に追記しました: {url}")
+            if published_at_str:
+                f.write(f"{url}, {published_at_str}\n")
+            else:
+                f.write(url + '\n')
+        print(f"summarized_urls.txt に追記しました: {url} {published_at_str}")
         # summarize_youtube_url_log.txt が空かどうか確認
         log_path = os.path.abspath(os.path.join(BASE_DIR, 'script_logs/summarize_youtube_url_log.txt'))
         if os.path.exists(log_path):
