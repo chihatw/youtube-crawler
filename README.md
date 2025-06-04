@@ -100,6 +100,7 @@ API クォータ消費量は `quota_logger.py` を通じて `youtube_quota_usage
 - 取得期間は「recent_videos.txt の最新日時が 1 日以内ならその直後から取得、そうでなければ 24 時間前から取得」です。
 - 新規取得動画数が標準出力に表示されます。
   API クォータ消費量は `quota_logger.py` を通じて `youtube_quota_usage_log.txt` に記録されます。
+- **2025 年 6 月 5 日以降、ログファイル名は `get_recent_videos_YYYYMMDD_HHMMSS.log` 形式となり、時分秒まで記録されます。**
 
 ---
 

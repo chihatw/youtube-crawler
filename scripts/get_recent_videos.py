@@ -16,7 +16,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # --- ログファイル設定 ---
 LOGS_DIR = os.path.abspath(os.path.join(BASE_DIR, 'script_logs'))
 os.makedirs(LOGS_DIR, exist_ok=True)
-log_date = datetime.now(ZoneInfo('Asia/Tokyo')).strftime('%Y%m%d')
+log_date = datetime.now(ZoneInfo('Asia/Tokyo')).strftime('%Y%m%d_%H%M%S')
 LOG_PATH = os.path.join(LOGS_DIR, f'get_recent_videos_{log_date}.log')
 
 def log(msg):
